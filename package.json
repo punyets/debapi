@@ -1,0 +1,18 @@
+{
+  "name": "debapi-api",
+  "version": "1.0.0",
+  "description": "Middleware library for database access",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --detectOpenHandles"
+  },
+  "author": "Students",
+  "license": "ISC",
+  "dependencies": {
+    "eslint": "^8.57.0",
+    "mysql": "^2.18.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}

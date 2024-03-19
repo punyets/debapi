@@ -10,7 +10,7 @@ Setup environment:\
 &emsp;Setup nodejs: npm start....
 
 ## TRANSLATION
-### First phase: (wil)
+### First phase: (wil) [done—superficially; functionality—not sure]
 1. db.schema.prefab.php\
 2. db.table.prefab.php\
 

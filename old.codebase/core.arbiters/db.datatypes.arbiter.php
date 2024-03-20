@@ -1,4 +1,6 @@
 <?
+// There was a lot of omissions... The thought of doing it was through the realisation that the TableFields 
+// is better suited as a descriptor rather than a structure for data.
 
 namespace Prefabs\TableField
 { // Fields for handling datatypes, things like default values and shits.
@@ -162,7 +164,7 @@ namespace Prefabs\TableField
 			$this->isNull = (!$auto_now && !$auto_now_add);
 			$this->autoFill = ($auto_now || $auto_now_add);
 			$this->field_name = $field_name;
-			$this->auto_now = $auto_now;
+			$this->auto_now = $auto_now; // always update the field every time you save
 			$this->auto_now_add = $auto_now_add;
 		}
 

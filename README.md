@@ -16,8 +16,8 @@ Setup environment:\
 
 ### Second phase: (wil)
 Edit data structure related stuff first:\
-&emsp;1. db.model.arbiter.php\
-&emsp;2. db.datatypes.arbiter.php
+&emsp;1. db.model.arbiter.php\ [done with the translation; untested] — a lot of overhauls, recommend reading the comments inside the file.
+&emsp;2. db.datatypes.arbiter.php [done with the translation; untested] — a lot of overhauls, recommend reading the comments inside the file.
 1. db.query.arbiter.php
 2. db.adit.arbiter.php
 

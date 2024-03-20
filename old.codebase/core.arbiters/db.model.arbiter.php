@@ -12,16 +12,17 @@ class TableModel
 	];
 
 	private $Fields = [
-		'pk-field-token' => null,
-		'fields-real' => null,
-		'columns-token' => null,
-		'columns-real' => null,
+		'pk-field-token' => null, # name of the primary key field as it was defined by a user
+		'fields-real' => null, # name of the primary key field as it was in the table
+		'columns-token' => null, # array of names of all the fields of the table as it was defined by the user
+		'columns-real' => null, # array of names of all the fields of the table as it was in the table
 		'pairs' => [
-			'tokenized_realized' => null,
+			'tokenized_realized' => null, # pairings
 			'realized_tokenized' => null,
 		]
 	];
 
+	# ommited (since the Table class in the JS Translation does half of this already)
 	protected function set_model(string $tablename, array $tablefields): QueryFactory
 	{
 		$this->Model['tablename'] = $tablename;
@@ -37,11 +38,13 @@ class TableModel
 		return $this;
 	}
 
+	# became pk_field
 	public function table_pk_name_real()
 	{
 		return $this->Model['pk-field'];
 	}
 
+	# ommited
 	public function table_pk_name_token()
 	{
 		return $this->Fields['pk-field-token'] ??= (function ()
@@ -54,31 +57,37 @@ class TableModel
 		})();
 	}
 
+	# became tablefields()
 	public function table_model_token()
 	{
 		return ($this->Model['fields']);
 	}
 
+	# ommited
 	public function table_model_real()
 	{
 		return $this->Fields['fields-real'] ??= $this->realize_field_names(...$this->Model['fields']);
 	}
 
+	# ommited
 	public function table_columns_token()
 	{
 		return $this->Fields['columns-token'] ??= array_keys($this->table_model_token());
 	}
 
+	# became fieldnames()
 	public function table_columns_real()
 	{
 		return $this->Fields['columns-real'] ??= array_keys($this->table_model_real());
 	}
 
+	# became tablename()
 	public function table_name()
 	{
 		return $this->Model['tablename'];
 	}
 
+	# ommited
 	protected function realize_field_names(\Prefabs\TableField\BaseField | string | null ...$fields_in): array
 	{
 		$model_base = $this->table_model_token();
@@ -92,6 +101,7 @@ class TableModel
 		return $fields_out;
 	}
 
+	# ommited
 	public function fields_realized_tokenized_pairs(): array
 	{
 		return $this->Fields['pairs']['realized_tokenized'] ??= (function ()
@@ -107,6 +117,8 @@ class TableModel
 			return $fields;
 		})();
 	}
+
+	# ommited
 	public function fields_tokenized_realized_pairs(): array
 	{
 		return $this->Fields['pairs']['tokenized_realized'] ??= (function ()

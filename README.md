@@ -16,12 +16,12 @@ Setup environment:\
 
 ### Second phase: (wil)
 Edit data structure related stuff first:\
-&emsp;1. db.model.arbiter.php\ [done with the translation; untested] — a lot of overhauls, recommend reading the comments inside the file.
-&emsp;2. db.datatypes.arbiter.php [done with the translation; untested] — a lot of overhauls, recommend reading the comments inside the file.
-1. db.query.arbiter.php
-2. db.adit.arbiter.php
+1. db.model.arbiter.php [done with the translation; untested] — a lot of overhauls, recommend reading the comments inside the file.
+2. db.datatypes.arbiter.php [done with the translation; untested] — a lot of overhauls, recommend reading the comments inside the file.
+3. db.query.arbiter.php [done with the translation; untested] — a lot of overhauls, rewrote the classes from the ground up.
+4. db.adit.arbiter.php [done with a part of it; untested] — just implemented only the fetching stuff, not really the saving, editing, deleting stuffs.
 
-### Last phase:
+### Last phase: (wil)
 QueryType.type.php — can be worked on disjoin from the first and second phase.\
 QuerySet.type.php — takes after QueryType
 

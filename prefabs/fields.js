@@ -34,13 +34,18 @@ Fields.Prefabs.BaseField = class {
 
 	default_value = null;
 
-	autoFill;
+	default_on_unset;
 
 	primary_key = false;
 
-	constructor({ field_name, default_value = null, primary_key = false }) {
+	constructor({
+		field_name,
+		default_on_unset,
+		default_value = null,
+		primary_key = false,
+	}) {
 		this.primary_key = primary_key;
-		this.autoFill = default_value !== null;
+		this.default_on_unset = default_on_unset;
 		this.default_value = default_value;
 		this.field_name = field_name;
 		this.ref_field_name = field_name;
@@ -48,14 +53,14 @@ Fields.Prefabs.BaseField = class {
 
 	compose(field_value) {
 		if (field_value !== undefined && field_value !== null) {
-			// data !== undefined && field_value !== null && (this.autoFill == true or this.autoFill == false)
+			// data !== undefined && field_value !== null && (this.default_on_unset == true or this.default_on_unset == false)
 			return field_value;
-		} else if (this.autoFill == true) {
-			// !(data !== undefined && field_value !== null), so (data === undefined || field_value === null) && (this.autoFill == true)
+		} else if (this.default_on_unset == true) {
+			// !(data !== undefined && field_value !== null), so (data === undefined || field_value === null) && (this.default_on_unset == true)
 			return this.default;
-		} else if (this.autoFill == false) {
-			// (data === undefined || field_value === null) && !(this.autoFill == true) && this.autoFill == false -| (data === undefined || field_value === null) && this.autoFill == false
-			throw '`data` is empty, while autofill option is false';
+		} else if (this.default_on_unset == false) {
+			// (data === undefined || field_value === null) && !(this.default_on_unset == true) && this.default_on_unset == false -| (data === undefined || field_value === null) && this.default_on_unset == false
+			throw '`data` is empty, while default_on_unset option is false';
 		}
 	}
 
@@ -162,7 +167,11 @@ Fields.Prefabs.Boolean = class extends Fields.Prefabs.BaseField {
 
 // omitted the <auto_now> and <auto_now_add> properties. Redundant... was trying to show off that time.
 Fields.Prefabs.ChronoTypeField = class extends Fields.Prefabs.BaseField {
-	constructor({ field_name, current_timestamp_as_default, primary_key = false }) {
+	constructor({
+		field_name,
+		current_timestamp_as_default,
+		primary_key = false,
+	}) {
 		super({
 			field_name: field_name,
 			default_value: current_timestamp_as_default,
@@ -183,23 +192,32 @@ Fields.Prefabs.DateTime = class extends Fields.Prefabs.ChronoTypeField {
 	type = 'DATETIME';
 	name = Fields.types.DATETIME;
 
-	compose({ iso_date, iso_time }) {
-		if (!(/^[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[0-1])$/.test(iso_date))) // verify if it's in iso format
-			throw 'Invalid iso_date input. Must be in ISO format.';
-		if (!(/^(([0-1][0-9]|2[0-3])(:[0-5][0-9]){2})$/.test(iso_time)))  // verify if it's in iso format
-			throw 'Invalid iso_time input. Must be in ISO format.';
+	compose(datetime_iso) {
+		if (datetime_iso instanceof Date) {
+			return `${datetime_iso.getFullYear()}-${datetime_iso.getMonth()}-${datetime_iso.getDate()} ${datetime_iso.getHours()}:${datetime_iso.getMinutes()}:${datetime_iso.getSeconds()}`;
+		} else {
+			let [iso_date, iso_time] = datetime_iso.split(' ');
+			if (
+				!/^[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[0-1])$/.test(iso_date)
+			)
+				// verify if it's in iso format
+				throw 'Invalid iso_date input. Must be in ISO format.';
+			if (
+				iso_time &&
+				!/^(([0-1][0-9]|2[0-3])(:[0-5][0-9]){2})$/.test(iso_time)
+			)
+				// verify if it's in iso format
+				throw 'Invalid iso_time input. Must be in ISO format.';
 
-		iso_time ??= `${this.sense.getHours()}:${this.sense.getMinutes()}:${this.sense.getSeconds()}`;
+			iso_time ??= '00:00:00';
 
-		return iso_date + ' ' + iso_time;
+			return iso_date + ' ' + iso_time;
+		}
 	}
 
 	now() {
 		const current_date = new Date();
-		return {
-			iso_date: `${current_date.getFullYear()}-${current_date.getMonth()}-${current_date.getDate()}`,
-			iso_time: `${this.sense.getHours()}:${this.sense.getMinutes()}:${this.sense.getSeconds()}`,
-		};
+		return `${current_date.getFullYear()}-${current_date.getMonth()}-${current_date.getDate()} ${current_date.getHours()}:${current_date.getMinutes()}:${current_date.getSeconds()}`;
 	}
 };
 
@@ -213,7 +231,8 @@ Fields.Prefabs.Time = class extends Fields.Prefabs.ChronoTypeField {
 		} else {
 			if (typeof iso_time === 'string') {
 				iso_time = iso_time.trim();
-				if (/^(([0-1][0-9]|2[0-3])(:[0-5][0-9]){2})$/.test(iso_time))  // verify if it's in iso format
+				if (/^(([0-1][0-9]|2[0-3])(:[0-5][0-9]){2})$/.test(iso_time))
+					// verify if it's in iso format
 					return iso_time;
 			}
 			self.throw_datatype_unsame(this);
@@ -236,7 +255,12 @@ Fields.Prefabs.Date = class extends Fields.Prefabs.ChronoTypeField {
 		} else {
 			if (typeof iso_date === 'string') {
 				iso_date = iso_date.trim();
-				if (/^[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[0-1])$/.test(iso_date)) // verify if it's in iso format
+				if (
+					/^[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[0-1])$/.test(
+						iso_date,
+					)
+				)
+					// verify if it's in iso format
 					return iso_date;
 			}
 			self.throw_datatype_unsame();
@@ -249,32 +273,104 @@ Fields.Prefabs.Date = class extends Fields.Prefabs.ChronoTypeField {
 	}
 };
 
-
 // INTERFACE.
-Fields.Integer = ({ field_name, default_value = null, primary_key = false}) => { 
-	return new Fields.Prefabs.Integer({field_name: field_name, default_value: default_value, primary_key: primary_key});
+Fields.Integer = ({
+	field_name,
+	default_value = null,
+	default_on_unset = false,
+	primary_key = false,
+}) => {
+	return new Fields.Prefabs.Integer({
+		field_name: field_name,
+		default_on_unset: default_on_unset,
+		default_value: default_value,
+		primary_key: primary_key,
+	});
 };
 
-Fields.Float = ({ field_name, default_value = null, primary_key = false}) => {
-	return new Fields.Prefabs.Float({field_name: field_name, default_value: default_value, primary_key: primary_key});
+Fields.Float = ({
+	field_name,
+	default_on_unset,
+	default_value = null,
+	primary_key = false,
+}) => {
+	return new Fields.Prefabs.Float({
+		field_name: field_name,
+		default_on_unset: default_on_unset,
+		default_value: default_value,
+		primary_key: primary_key,
+	});
 };
 
-Fields.String = ({ field_name, default_value = null, primary_key = false}) => {
-	return new Fields.Prefabs.String({field_name: field_name, default_value: default_value, primary_key: primary_key});
+Fields.String = ({
+	field_name,
+	default_on_unset,
+	default_value = null,
+	primary_key = false,
+}) => {
+	return new Fields.Prefabs.String({
+		field_name: field_name,
+		default_on_unset: default_on_unset,
+		default_value: default_value,
+		primary_key: primary_key,
+	});
 };
 
-Fields.Boolean = ({ field_name, default_value = null, primary_key = false}) => {
-	return new Fields.Prefabs.Boolean({field_name: field_name, default_value: default_value, primary_key: primary_key});
+Fields.Boolean = ({
+	field_name,
+	default_on_unset,
+	default_value = null,
+	primary_key = false,
+}) => {
+	return new Fields.Prefabs.Boolean({
+		field_name: field_name,
+		default_on_unset: default_on_unset,
+		default_value: default_value,
+		primary_key: primary_key,
+	});
 };
 
-Fields.DateTime = ({ field_name, current_timestamp_as_default, primary_key = false }) => {
-	return new Fields.Prefabs.DateTime({field_name: field_name, current_timestamp_as_default: current_timestamp_as_default, primary_key: primary_key});
+// TODO: Implement default_value as well.
+Fields.DateTime = ({
+	field_name,
+	default_on_unset,
+	current_timestamp_as_default,
+	primary_key = false,
+}) => {
+	return new Fields.Prefabs.DateTime({
+		field_name: field_name,
+		default_on_unset: default_on_unset,
+		current_timestamp_as_default: current_timestamp_as_default,
+		primary_key: primary_key,
+	});
 };
 
-Fields.Time = ({ field_name, current_timestamp_as_default, primary_key = false }) => {
-	return new Fields.Prefabs.Time({field_name: field_name, current_timestamp_as_default: current_timestamp_as_default, primary_key: primary_key});
+Fields.Time = ({
+	field_name,
+	default_on_unset,
+	current_timestamp_as_default,
+	primary_key = false,
+}) => {
+	return new Fields.Prefabs.Time({
+		field_name: field_name,
+		default_on_unset: default_on_unset,
+		current_timestamp_as_default: current_timestamp_as_default,
+		primary_key: primary_key,
+	});
 };
 
-Fields.Date = ({ field_name, current_timestamp_as_default, primary_key = false }) => {
-	return new Fields.Prefabs.Date({field_name: field_name, current_timestamp_as_default: current_timestamp_as_default, primary_key: primary_key});
+Fields.Date = ({
+	field_name,
+	default_on_unset,
+	current_timestamp_as_default,
+	primary_key = false,
+}) => {
+	return new Fields.Prefabs.Date({
+		field_name: field_name,
+		default_on_unset: default_on_unset,
+		current_timestamp_as_default: current_timestamp_as_default,
+		primary_key: primary_key,
+	});
 };
+
+module.exports = Fields;

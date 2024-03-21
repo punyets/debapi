@@ -25,14 +25,22 @@ class Schema {
 
 	static #CURRENT_CONN;
 
-	constructor({dbname, username, port='', host='', socket='', password=''}) {
+	constructor({
+		dbname,
+		username,
+		port = '',
+		host = '',
+		socket = '',
+		password = '',
+	}) {
 		this.#database = dbname;
 
-		if (!socket) { // use url.
+		if (!socket) {
+			// use url.
 			this.#port = port;
 			this.#host = host;
-		}
-		else { // use socket file to connect to sql service wihin same machine (for unix only).
+		} else {
+			// use socket file to connect to sql service wihin same machine (for unix only).
 			this.#socket = socket;
 		}
 
@@ -46,23 +54,22 @@ class Schema {
 		this.#CONN = SQL.createPoolCluster();
 
 		if (this.socket) {
-			this.conn.add('query', {
+			this.#CONN.add('query', {
 				connectionLimit: 20,
 				database: this.#database,
 				user: this.#username,
 				password: this.#password,
 				socket: this.#socket,
 			});
-			this.conn.add('dml', {
+			this.#CONN.add('dml', {
 				connectionLimit: 20,
 				database: this.#database,
 				user: this.#username,
 				password: this.#password,
 				socket: this.#socket,
 			});
-		}
-		else {
-			this.CONN.add('query', {
+		} else {
+			this.#CONN.add('query', {
 				connectionLimit: 20,
 				database: this.#database,
 				user: this.#username,
@@ -70,7 +77,7 @@ class Schema {
 				host: this.#host,
 				port: this.#port,
 			});
-			this.CONN.add('dml', {
+			this.#CONN.add('dml', {
 				connectionLimit: 20,
 				database: this.#database,
 				user: this.#username,
@@ -81,14 +88,18 @@ class Schema {
 		}
 	}
 
-	use() {
-		Schema.#CURRENT_CONN = this.#CONN;
-		return this;
+	get connection() {
+		return this.#CONN;
 	}
 
-	attach() {
-		return Schema.#CURRENT_CONN;
-	}
+	//use() {
+	//Schema.#CURRENT_CONN = this.#CONN;
+	//return this;
+	//}
+
+	//attach() {
+	//return Schema.#CURRENT_CONN;
+	//}
 }
 
 module.exports = Schema;

@@ -30,10 +30,10 @@ class Table {
 	#Specs = {
 		pk_field: undefined,
 		fieldnames: undefined,
-		//fieldnames_maps: {
-		//real_to_ref: undefined,
-		//ref_to_real: undefined,
-		//},
+		fieldnames_maps: {
+			//real_to_ref: undefined,
+			ref_to_real: undefined,
+		},
 	};
 	#Name;
 	#Fields;
@@ -44,7 +44,7 @@ class Table {
 		this.#Fields = fields;
 		this.#Schema = schema;
 
-		if (typeof v === 'function') {
+		if (typeof indict === 'function') {
 			indict(this, tablename, fields, schema);
 		}
 
@@ -81,15 +81,15 @@ class Table {
 		});
 	}
 
-	//get fieldnames_pairs_ref_to_real () {
-	//return this.#Specs.fieldnames_maps.ref_to_real ??= (() => {
-	//const fields = {};
-	//for (const ref_name in this.#Fields) {
-	//fields[ref_name] = this.#Fields[ref_name].get_field_name();
-	//}
-	//return fields;
-	//});
-	//}
+	get fieldnames_pairs_ref_to_real() {
+		return (this.#Specs.fieldnames_maps.ref_to_real ??= () => {
+			const fields = {};
+			for (const ref_name in this.#Fields) {
+				fields[ref_name] = this.#Fields[ref_name].get_field_name();
+			}
+			return fields;
+		});
+	}
 
 	//get fieldnames_pairs_real_to_ref() {
 	//return this.#Specs.fieldnames_maps.real_to_ref ??= (() => {
@@ -102,7 +102,7 @@ class Table {
 	//}
 
 	create(content) {
-		this.entries();
+		this.init();
 
 		if (content.length == 0) return null;
 		return new Querytype(content, this.entries, Querytype.EXISTENCE_NEW);
@@ -124,16 +124,21 @@ class Table {
 
 	entries() {
 		this.init();
-		return this.entries();
+		return /*Adit*/this.adit;
+	}
+
+	get connection() {
+		return this.#Schema.connection;
+	}
+
+	get schema() {
+		return this.#Schema;
 	}
 
 	init() {
 		if (this.adit === undefined) {
 			this.indict();
-			this.adit = new Adit({
-				Tablename: this.#Name,
-				Fields: this.#Fields,
-			});
+			this.adit = new Adit(this); // now... TableAdit is now a builder for the interface for database in terms of Table;
 
 			// no need to initiate query factory. since QueryFactory is the parent of TableAdit, you can
 			// just put the Schema object in the QueryFactory and and QueryFactory will attach to that

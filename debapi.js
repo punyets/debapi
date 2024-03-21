@@ -1,6 +1,5 @@
 module.exports = {
-	schema: require('./prefabs/schema.js'),
-	Prefabs: {
-		table: require('./prefabs/schema.js'),
-	}
+	Schema: require('./prefabs/schema.js'),
+	Table: require('./prefabs/table.js'),
+	Fields: require('./prefabs/fields.js'),
 };

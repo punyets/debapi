@@ -56,6 +56,9 @@ const some_query = customer_table
 
 const some_row = customer_table.entries().get(2);
 
-const all_query = customer_table.entries().all().order_by({ member_since: 'DESC'}).values.
+const joined_customer_manager = customer_table.select("id_no", "customer_name")
+	.join(managers_table.select("id_no", "manager_name", "branch"), "inner")
+
+const all_query = customer_table.entries().all().order_by({ member_since: 'DESC' }).values;
 
 // some sandbox file.

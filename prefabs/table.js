@@ -81,7 +81,7 @@ class Table {
 		});
 	}
 
-	get fieldnames_pairs_ref_to_real() {
+	get ref_to_real_pairs() {
 		return (this.#Specs.fieldnames_maps.ref_to_real ??= () => {
 			const fields = {};
 			for (const ref_name in this.#Fields) {
@@ -120,6 +120,19 @@ class Table {
 
 	omit(queryset) {
 		queryset.omit();
+	}
+
+	select(indict = null, columns) {
+		const ref_to_real_pairs = this.ref_to_real_pairs();
+		const selected_columns = {};
+		for (let i = 0; i < columns.length; i++) {
+			if (ref_to_real_pairs[columns[i]] === undefined) {
+				throw `Invalid field name supplied. \`${columns[i]}\` does not exist.`;
+			}
+			selected_columns[columns[i]] = ref_to_real_pairs[columns[i]]
+		}
+		
+		return new Adit(new Table(this.tablename, selected_columns, this.#Schema, indict));
 	}
 
 	entries() {

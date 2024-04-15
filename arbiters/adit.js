@@ -24,6 +24,10 @@ class Adit {
 		);
 	}
 
+	join(Table, join_type) {
+		// write join logic here.
+	}
+
 	get(id) {
 		if (this.cache_get_stmnt) {
 			this.cache_get_stmnt = new FilterAdit(this.#Table, this.#QueryFactory, undefined, { [this.#Table.pk_field+'__eq']: id});

@@ -54,7 +54,7 @@ class Table {
 			fields[defined_fieldname].ref_name = defined_fieldname;
 			if (fields[defined_fieldname].is_primary_key) {
 				this.#Specs.pk_field =
-					fields[defined_fieldname].get_field_name();
+					fields[defined_fieldname].fieldname();
 			}
 		}
 	}
@@ -133,6 +133,10 @@ class Table {
 		}
 		
 		return new Adit(new Table(this.tablename, selected_columns, this.#Schema, indict));
+	}
+
+	join(join_table, join_type, join_constraints) {
+		return this.adit.join(join_table, join_type, join_constraints)
 	}
 
 	entries() {

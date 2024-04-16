@@ -35,13 +35,12 @@ class CLAUSE {
 	params = {};
 
 	table_model;
-	prefab;
 
 	constructor(table_model, ...values) {
 		this.table_model = table_model;
-		for (let i = 0, j = 0;  i < this.prefab.length && j < values.length; i++) {
-			if (this.prefab[i] === undefined) {
-				this.prefab[i] = values[j];
+		for (let i = 0, j = 0;  i < this.stmnt.length && j < values.length; i++) {
+			if (this.stmnt[i] === undefined) {
+				this.stmnt[i] = values[j];
 				j++;
 			}
 		}
@@ -53,7 +52,7 @@ class CLAUSE {
 }
 
 class WHERE extends CLAUSE {
-	prefab = ['WHERE', undefined];
+	stmnt = ['WHERE', undefined];
 
 	static #WHERE_OPERATORS = {
 		not: 'NOT `%0` = %1',
@@ -226,8 +225,8 @@ class WHERE extends CLAUSE {
 
 // TODO: add aggregate functions as well.
 class SELECT extends CLAUSE {
-	//prefab = 'SELECT %0 FROM %1 %WHERE %ORDER_BY %LIMIT';
-	prefab = ['SELECT', undefined, 'FROM', undefined, undefined, undefined, undefined];
+	//stmnt = 'SELECT %0 FROM %1 %WHERE %ORDER_BY %LIMIT';
+	stmnt = ['SELECT', undefined, 'FROM', undefined, undefined, undefined, undefined];
 	#where;
 
 	constructor(table_model, columns = null) {
@@ -309,7 +308,7 @@ class SELECT extends CLAUSE {
 }
 
 class INSERT extends CLAUSE {
-	prefab = ['INSERT INTO', undefined, undefined, 'VALUES', undefined, '%MORE'];
+	stmnt = ['INSERT INTO', undefined, undefined, 'VALUES', undefined, '%MORE'];
 	itemid = 1;
 
 	insert_columns;
@@ -382,7 +381,7 @@ class INSERT extends CLAUSE {
 }
 
 class UPDATE extends CLAUSE {
-	prefab = ['UPDATE', undefined, 'SET', undefined, undefined];
+	stmnt = ['UPDATE', undefined, 'SET', undefined, undefined];
 
 	#where;
 
@@ -429,7 +428,7 @@ class UPDATE extends CLAUSE {
 }
 
 class DELETE extends CLAUSE {
-	prefab = ['DELETE FROM', undefined];
+	stmnt = ['DELETE FROM', undefined];
 	#where;
 
 	constructor(table_model, filters_terms, filter_logic=undefined) {

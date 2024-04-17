@@ -63,8 +63,11 @@ const some_query = customer_table
 const some_row = customer_table.entries().get(2);
 
 const joined_customer_manager = customer_table.select("id_no", "customer_name")
-	.join(managers_table.select("id_no", "manager_name", "branch"), "inner")
+	.join(managers_table.select("id_no", "manager_name", "branch"), "inner", { main_field: 'id_no', join_field: 'id_no'}).filter().values;
 
+	// select `id_no`, `customer_name` from customers;
+	// select `customers.id_no`, `customer_name`, `id_no`, `manager_name`, `branch`
+	// select `customers.id_no`, `customers.customer_name`, `managers.id_no`, `managers.manager_name`, `managers.branch` FROM customers WHERE customers.customer_name like 'Doe' INNER JOIN `managers` ON (`customers.id_no` = `managers.id_no`)
 const all_query = customer_table.entries().all().order_by({ member_since: 'DESC' }).values;
 
 // some sandbox file.

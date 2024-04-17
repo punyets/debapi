@@ -24,7 +24,14 @@ class Adit {
 		);
 	}
 
-	join(Table, join_type) {
+	join(join_table, join_type, join_constraints) {
+		return new JoinAdit(
+			this.#Table,
+			this.#QueryFactory,
+			join_table,
+			join_type,
+			join_constraints,
+		)
 		// write join logic here.
 	}
 
@@ -57,6 +64,23 @@ class DatabaseAdit {
 	}
 }
 
+class JoinAdit extends SelectAdit {
+	constructor(table_model, query_factory, join_table, join_type, join_constraints) {
+		super(table, query_factory);
+		this.stmnt = this.stmnt.JOIN(join_table, join_type, join_constraints); // this.stmnt is already initiated in SelectAdit()
+	}
+
+	limit(number) {
+		this.stmnt.LIMIT(number);
+		return this;
+	}
+
+	filter({ filter_logic, ...filters_terms }) {
+		this.stmnt.WHERE_LOGIC(filter_logic).WHERE(...filters_terms);
+		return this;
+	}
+}
+
 class SelectAdit extends DatabaseAdit {
 	constructor(table_model, query_factory) {
 		super(table_model, query_factory);
@@ -66,6 +90,7 @@ class SelectAdit extends DatabaseAdit {
 
 	order_by(fields_orders) {
 		this.stmnt.ORDER_BY(fields_orders);
+		return this;
 	}
 }
 
@@ -81,6 +106,7 @@ class FilterAdit extends SelectAdit {
 
 	limit(number) {
 		this.stmnt.LIMIT(number);
+		return this;
 	}
 }
 

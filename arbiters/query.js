@@ -225,8 +225,8 @@ class WHERE extends CLAUSE {
 
 // TODO: add aggregate functions as well.
 class SELECT extends CLAUSE {
-	//stmnt = 'SELECT %0 FROM %1 %WHERE %ORDER_BY %LIMIT';
-	stmnt = ['SELECT', undefined, 'FROM', undefined, undefined, undefined, undefined];
+	//prefab = 'SELECT %0 FROM %1 %WHERE %ORDER_BY %LIMIT';
+	prefab = ['SELECT', undefined, 'FROM', undefined, undefined, undefined, undefined, undefined];
 	#where;
 
 	constructor(table_model, columns = null) {
@@ -253,6 +253,38 @@ class SELECT extends CLAUSE {
 
 	get params() {
 		return this.#where.params;
+	}
+
+	JOIN(join_table, join_type, join_constraints = { main_field: undefined, join_field: undefined}) 
+	{
+		if (join_constraints.main_field == undefined && join_constraints.join_field == undefined) {
+			join_constraints.main_field = this.table_model.pk_field
+			join_constraints.join_field = join_table.pk_field
+		} else if (typeof join_constraints.join_field != 'string' || typeof join_constraints.main_field != 'string' || !this.table_model.fieldnames.includes(join_constraints.main_field) || !join_table.fieldnames.includes(join_constraints.join_field)) {
+			throw "main_field & join_field must be both strings or undefined and valid field names for the main table and the joining table.";
+		}
+
+		if (['inner', 'outer', 'left', 'right'].includes(join_type)) {
+			join_type = join_type.toUpperCase();
+		} else {
+			throw "join_type is invalid."
+		}
+
+		let tablename = this.table_model.tablename
+		const columns = new Array(this.table_model.fieldnames.length + join_table.fieldnames.length);
+		for (let I = 0; I < this.table_model.fieldnames.length; I++) {
+			columns[I] = `${tablename}.${this.table_model.fieldnames[I]}`;
+		}
+		const offset = I
+		tablename = join_table.tablename
+		for (I = 0; I < join_table.fieldnames.length; I++) {
+			columns[I+offset] = `${tablename}.${join_table.fieldnames[I]}`;
+			
+		}
+
+		this.stmnt[1] = columns.join(" ");
+
+		this.stmnt[5] = `${join_type} JOIN ${join_table.tablename} ON ${this.table_model.tablename}.${join_constraints.main_field} = ${join_table.tablename}.${join_constraints.join_field}`;
 	}
 
 	WHERE(filters_terms) {
@@ -293,19 +325,20 @@ class SELECT extends CLAUSE {
 			}
 			order_by += ` \`${field}\` ${fields_orders[field]}`;
 		}
-		this.stmnt[5] = order_by;
+		this.stmnt[6] = order_by;
 		return this;
 	}
 
 	LIMIT(integer) {
 		if (typeof integer == 'number') {
-			this.stmnt[6] = `LIMIT ${integer}`;
+			this.stmnt[7] = `LIMIT ${integer}`;
 		} else {
 			throw 'Invalid LIMIT constraint. Must be a number.';
 		}
 		return this;
 	}
 }
+
 
 class INSERT extends CLAUSE {
 	stmnt = ['INSERT INTO', undefined, undefined, 'VALUES', undefined, '%MORE'];

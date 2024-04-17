@@ -271,6 +271,20 @@ class SELECT extends CLAUSE {
 			throw "join_type is invalid."
 		}
 
+		let tablename = this.table_model.tablename
+		const columns = new Array(this.table_model.fieldnames.length + join_table.fieldnames.length);
+		for (let I = 0; I < this.table_model.fieldnames.length; I++) {
+			columns[I] = `${tablename}.${this.table_model.fieldnames[I]}`;
+		}
+		const offset = I
+		tablename = join_table.tablename
+		for (I = 0; I < join_table.fieldnames.length; I++) {
+			columns[I+offset] = `${tablename}.${join_table.fieldnames[I]}`;
+			
+		}
+
+		this.stmnt[1] = columns.join(" ");
+
 		this.stmnt[5] = `${join_type} JOIN ${join_table.tablename} ON ${this.table_model.tablename}.${join_constraints.main_field} = ${join_table.tablename}.${join_constraints.join_field}`;
 	}
 
@@ -325,6 +339,7 @@ class SELECT extends CLAUSE {
 		return this;
 	}
 }
+
 
 class INSERT extends CLAUSE {
 	prefab = ['INSERT INTO', undefined, undefined, 'VALUES', undefined, '%MORE'];

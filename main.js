@@ -1,3 +1,9 @@
+// In the end this library is just aking the question, 'how can you make javascript code
+// that represents an SQL statement?' This library just builds an SQL statement and executes 
+// that statement with the `mysql` npm package.
+
+// this file, main.js, is a sandbox file. Made for testing out the library.
+
 const { Schema, Table, Fields } = require('./debapi.js');
 
 const database = new Schema({

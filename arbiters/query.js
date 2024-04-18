@@ -226,7 +226,7 @@ class WHERE extends CLAUSE {
 // TODO: add aggregate functions as well.
 class SELECT extends CLAUSE {
 	//prefab = 'SELECT %0 FROM %1 %WHERE %ORDER_BY %LIMIT';
-	prefab = ['SELECT', undefined, 'FROM', undefined, undefined, undefined, undefined, undefined];
+	stmnt = ['SELECT', undefined, 'FROM', undefined, undefined, undefined, undefined, undefined];
 	#where;
 
 	constructor(table_model, columns = null) {
